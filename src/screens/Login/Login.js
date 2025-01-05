@@ -1,269 +1,266 @@
-// import {View, Text, StatusBar, Image, TouchableOpacity} from 'react-native';
-// import React, {useEffect, useState} from 'react';
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import AppWrapper from '../../components/AppWrapper';
-import {myColors} from '../../utils/Themes/Colors';
-import {
-  responsiveFontSize,
-  responsiveWidth,
-} from 'react-native-responsive-dimensions';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 
 
-// import {
-//   GoogleSignin,
-//   statusCodes,
-// } from '@react-native-google-signin/google-signin';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const Login = ({navigation}) => {
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import * as Google from 'expo-auth-session/providers/google';
 
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+export const Login = () => {
+  const [mobile, setMobile] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [isRegister, setIsRegister] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isOtp, setIsOtp] = useState(false);
 
-  const handleChange = (name, value) => {
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  // const [request, response, promptAsync] = Google.useAuthRequest({
+  //   expoClientId: 'YOUR_EXPO_CLIENT_ID',
+  //   iosClientId: 'YOUR_IOS_CLIENT_ID',
+  //   androidClientId: 'YOUR_ANDROID_CLIENT_ID',
+  // });
+
+  const handleGetCode = () => {
+    console.log('Get Verification Code for:', mobile);
   };
 
-  const handleSubmit = async () => {
-    // Validate input fields are not empty
-    if (!formData.username || !formData.password) {
-      Alert.alert('Error', 'Please fill in all fields');
-      return;
-    }
+  const handleLogin = () => {
+    console.log('Login with:', email, password);
+  };
 
-    setIsLoading(true);
+  const handleRegister = () => {
+    console.log('Register with:', name, mobile, email, password);
+  };
 
-    // Simulate authentication with dummy credentials
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Check for specific dummy credentials
-    if (
-      formData.username.toLowerCase() === 'abc@gmail.com' && 
-      formData.password === '12345'
-    ) {
-      // Successful login
-      setIsLoading(false);
-      navigation.navigate('BusinessTypeSelection');
-    } else {
-      // Failed login
-      setIsLoading(false);
-      Alert.alert(
-        'Login Failed', 
-        'Incorrect username or password. Please try again.',
-        [{ text: 'OK' }]
-      );
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await promptAsync();
+      if (result?.type === 'success') {
+        console.log('Google login successful:', result);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
     }
   };
-  // useEffect(() => {
-  //   GoogleSignin.configure();
-  // }, []);
 
-  // const signIn = async () => {
-  //   try {
-  //     await GoogleSignin.hasPlayServices();
-  //     const userInfo = await GoogleSignin.signIn();
-  //     if (userInfo) {
-  //       await AsyncStorage.setItem('key', JSON.stringify(userInfo));
-  //       navigation.replace('Home');
-  //     }
-  //   } catch (error) {
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       console.log('SIGN_IN_CANCELLED');
-  //       // user cancelled the login flow
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       console.log('IN_PROGRESS');
-  //       // operation (e.g. sign in) is in progress already
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       console.log('PLAY_SERVICES_NOT_AVAILABLE');
-  //       // play services not available or outdated
-  //     } else {
-  //       console.log(error, 'Error,PLease try again');
-  //       // some other error happened
-  //     }
-  //   }
-  // };
+  // Function to reset all states except the selected one
+  const resetStates = (selectedState) => {
+    setIsLogin(selectedState === 'login');
+    setIsRegister(selectedState === 'register');
+    setIsForgotPassword(selectedState === 'forgotPassword');
+    setIsOtp(selectedState === 'otp');
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.subtitle}>Please sign in to continue</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Image source={require('../../../assets/Charity.png')} style={styles.illustration} />
+      <Text style={styles.title}>Ineed Buddy</Text>
+      <Text style={styles.subtitle}>Fastest Home Service</Text>
+      <Text style={styles.tagline}>Quick - Affordable - Trusted</Text>
 
-      <View style={styles.inputContainer}>
-        {/* <User style={styles.icon} /> */}
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={formData.username}
-          onChangeText={(text) => handleChange('username', text)}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-      </View>
+      {isLogin && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity onPress={() => resetStates('forgotPassword')}>
+            <Text style={styles.linkText}>Forgot Password?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => resetStates('register')}>
+            <Text style={styles.linkText}>New User? Register Here</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => resetStates('otp')}>
+            <Text style={styles.linkText}>Login with OTP</Text>
+          </TouchableOpacity>
+        </>
+      )}
 
-      <View style={styles.inputContainer}>
-        {/* <Lock style={styles.icon} /> */}
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry={!showPassword}
-          value={formData.password}
-          onChangeText={(text) => handleChange('password', text)}
-          autoCapitalize="none"
-        />
-        {/* <TouchableOpacity
-          style={styles.eyeIcon}
-          onPress={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? <EyeOff /> : <Eye />}
-        </TouchableOpacity> */}
-      </View>
+      {isRegister && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Mobile Number"
+            value={mobile}
+            onChangeText={setMobile}
+            keyboardType="phone-pad"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => resetStates('login')}>
+            <Text style={styles.linkText}>Already have an account? Login Here</Text>
+          </TouchableOpacity>
+        </>
+      )}
 
-      <View style={styles.optionsContainer}>
-        <TouchableOpacity style={styles.checkbox}>
-          <Text style={styles.checkboxText}>Remember me</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-        </TouchableOpacity>
-      </View>
+      {isForgotPassword && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TouchableOpacity style={styles.button} onPress={() => console.log('Reset Password')}>
+            <Text style={styles.buttonText}>Reset Password</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => resetStates('login')}>
+            <Text style={styles.linkText}>Back to Login</Text>
+          </TouchableOpacity>
+        </>
+      )}
 
-      <TouchableOpacity
-        style={[styles.button, isLoading && styles.disabledButton]}
-        onPress={handleSubmit}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Sign In</Text>
-        )}
+      {isOtp && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Mobile Number"
+            value={mobile}
+            onChangeText={setMobile}
+            keyboardType="phone-pad"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="OTP"
+            value={otp}
+            onChangeText={setOtp}
+            keyboardType="number-pad"
+          />
+          <TouchableOpacity style={styles.button} onPress={handleGetCode}>
+            <Text style={styles.buttonText}>Get Verification Code</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => resetStates('login')}>
+            <Text style={styles.linkText}>Back to Login</Text>
+          </TouchableOpacity>
+        </>
+      )}
+
+      <Text style={styles.orText}>OR</Text>
+
+      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+        <Ionicons name="logo-google" size={24} color="white" />
+        <Text style={styles.googleButtonText}>Login with Google</Text>
       </TouchableOpacity>
-
-      <Text style={styles.signupText}>
-        Don't have an account?{' '}
-        <Text
-          style={styles.signupLink}
-          onPress={() => navigation.navigate('')}
-        >
-          Sign up
-        </Text>
-      </Text>
-
-      {/* Hint for testing */}
-      {/* <View style={styles.hintContainer}>
-        <Text style={styles.hintText}>
-          Test Credentials:
-        </Text>
-        <Text style={styles.credentialsText}>
-          Username: abc@gmail.com
-          Password: 12345
-        </Text>
-      </View> */}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#D1FAE5',
-    paddingHorizontal: 20,
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  illustration: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#1F2937',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#4B5563',
-    marginBottom: 30,
+    color: '#666',
+    marginBottom: 5,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+  tagline: {
+    fontSize: 14,
+    color: '#888',
     marginBottom: 20,
-    paddingHorizontal: 10,
-    height: 50,
-    width: '100%',
   },
   input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  icon: {
-    marginRight: 10,
-    color: '#9CA3AF',
-  },
-  eyeIcon: {
-    marginLeft: 10,
-  },
-  optionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 20,
-  },
-  checkbox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkboxText: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: '#10B981',
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#10B981',
-    borderRadius: 8,
-    height: 50,
     width: '100%',
+    height: 50,
+    backgroundColor: '#007bff',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  linkText: {
+    color: '#007bff',
+    marginBottom: 15,
+  },
+  orText: {
+    marginVertical: 15,
+    color: '#666',
+  },
+  googleButton: {
+    flexDirection: 'row',
+    width: '100%',
+    height: 50,
+    backgroundColor: '#007bff',
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  buttonText: {
+  googleButtonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
-  },
-  signupText: {
-    marginTop: 20,
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  signupLink: {
-    color: '#10B981',
-    fontWeight: 'bold',
+    marginLeft: 10,
   },
 });
+
+// export default LoginScreen;
